@@ -5,9 +5,9 @@ import {
   storeDefault,
   DataContextType,
   SelectorEnum,
+  ResponseApi,
 } from '../models'
-import dataProducts from '../data/shoes.json'
-import dataCarts from '../data/carts.json'
+import { getData, PostOrPut, GetOrDelete } from '../api'
 
 type ContextProps = {
   children: JSX.Element
@@ -18,6 +18,7 @@ const DataContext = createContext({} as DataContextType)
 const DataContextProvider = ({ children }: ContextProps) => {
   const [store, setStore] = useState(storeDefault)
   const [isLoading, setIsLoading] = useState(true)
+  const [apiResponse, setApiResponse] = useState({ success: true })
 
   const productSelector = store.products
   const cartSelector = store.cart
@@ -35,6 +36,17 @@ const DataContextProvider = ({ children }: ContextProps) => {
     }
 
     if (selector === SelectorEnum.CART) {
+      const response = await PostOrPut('cart', 'POST', {
+        ...cartItem,
+        isAddedToCart: undefined,
+      })
+      if (response.message) {
+        console.log(response)
+        setApiResponse(response as ResponseApi)
+        setIsLoading(false)
+        return
+      }
+
       const items = [...store['cart'].items, cartItem]
       const total = items.reduce(
         (accumulator, item) => accumulator + item.price * item.quantity,
@@ -51,6 +63,17 @@ const DataContextProvider = ({ children }: ContextProps) => {
       return
     }
 
+    const response = await PostOrPut('products', 'POST', {
+      ...itemAdd,
+      isAddedToCart: undefined,
+    })
+    if (response.message) {
+      console.log(response)
+      setApiResponse(response as ResponseApi)
+      setIsLoading(false)
+      return
+    }
+
     setStore((preStore) => ({
       ...preStore,
       products: [...store.products, itemAdd as Product],
@@ -63,6 +86,18 @@ const DataContextProvider = ({ children }: ContextProps) => {
     setIsLoading(true)
 
     if (selector === SelectorEnum.CART) {
+      const response = await PostOrPut(`cart/${itemEdit.id}`, 'PUT', {
+        ...itemEdit,
+        description: undefined,
+        isAddedToCart: undefined,
+      })
+      if (response.message) {
+        console.log(response)
+        setApiResponse(response as ResponseApi)
+        setIsLoading(false)
+        return
+      }
+
       const editCartItem: Cart = { ...itemEdit } as Cart
 
       const items = store['cart'].items.map((item: Cart) =>
@@ -84,6 +119,17 @@ const DataContextProvider = ({ children }: ContextProps) => {
       return
     }
 
+    const response = await PostOrPut(`products/${itemEdit.id}`, 'PUT', {
+      ...itemEdit,
+      isAddedToCart: undefined,
+    })
+    if (response.message) {
+      console.log(response)
+      setApiResponse(response as ResponseApi)
+      setIsLoading(false)
+      return
+    }
+
     setStore((preStore) => ({
       ...preStore,
       products: [...store.products].map((item: Product) =>
@@ -98,6 +144,14 @@ const DataContextProvider = ({ children }: ContextProps) => {
     setIsLoading(true)
 
     if (selector === SelectorEnum.CART) {
+      const response = await GetOrDelete(`cart/${itemDelete.id}`, 'DELETE')
+      if (response.message) {
+        console.log(response)
+        setApiResponse(response as ResponseApi)
+        setIsLoading(false)
+        return
+      }
+
       const items = store['cart'].items.filter(
         (item) => item.id !== itemDelete.id,
       )
@@ -118,6 +172,14 @@ const DataContextProvider = ({ children }: ContextProps) => {
       return
     }
 
+    const response = await GetOrDelete(`products/${itemDelete.id}`, 'DELETE')
+    if (response.message) {
+      console.log(response)
+      setApiResponse(response as ResponseApi)
+      setIsLoading(false)
+      return
+    }
+
     setTimeout(() => {
       setStore((preStore) => ({
         ...preStore,
@@ -132,39 +194,61 @@ const DataContextProvider = ({ children }: ContextProps) => {
 
   const loadProducts = async () => {
     setIsLoading(true)
-    const products = dataProducts.shoes.map((item) => ({
+    const response = await getData('products')
+    if (response.message) {
+      console.log(response)
+      setApiResponse(response as ResponseApi)
+      setIsLoading(false)
+      return
+    }
+    const products = (response as Product[]).map((item) => ({
       ...item,
       isAddedToCart: false,
     }))
-    if (products) {
-      setStore((preStore) => ({ ...preStore, products }))
-    }
+    setStore((preStore) => ({ ...preStore, products }))
     setIsLoading(false)
   }
 
   const loadCarts = async () => {
     setIsLoading(true)
-    const items = dataCarts.cart.map((item: Cart) => ({
+    const response = await getData('cart')
+    if (response.message) {
+      console.log(response)
+      setApiResponse(response as ResponseApi)
+      setIsLoading(false)
+      return
+    }
+
+    const items = (response.items as Cart[]).map((item: Cart) => ({
       ...item,
       isAddedToCart: true,
     }))
+
     const total = items.reduce(
-      (accumulator, item) => accumulator + item.price,
+      (accumulator, item) => accumulator + item.price * item.quantity,
       0,
     )
     const cart = {
       items,
       total,
     }
-    if (items) {
-      setStore((preStore) => ({ ...preStore, cart }))
-    }
+
+    setStore((preStore) => ({
+      ...preStore,
+      products: preStore['products'].map((item) => {
+        const isAddedToCart = items.some((itemCart) => itemCart.id === item.id)
+        return { ...item, isAddedToCart }
+      }),
+      cart,
+    }))
     setIsLoading(false)
   }
 
   const DataContextData = {
     isLoading,
     setIsLoading,
+    apiResponse,
+    setApiResponse,
     store,
     setStore,
     productSelector,

@@ -1,0 +1,17 @@
+{
+  "name": "g-sneaker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "setupclient": "cd app & pnpm install",
+    "setupserver": "cd server & pnpm install",
+    "presetup": "pnpm setupclient & pnpm setupserver",
+    "startclient": "cd app & pnpm dev",
+    "startserver": "cd server & pnpm start",
+    "start": "pnpm startclient & pnpm startserver"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

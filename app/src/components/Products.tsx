@@ -5,7 +5,7 @@ import { Product } from '../models'
 import { DataContext } from '../contexts/dataContext'
 
 export const Products = () => {
-  const { isLoading, productSelector, loadProducts } = useContext(DataContext)
+  const { productSelector, loadProducts, apiResponse } = useContext(DataContext)
   const shoes = productSelector
 
   useEffect(() => {
@@ -13,7 +13,8 @@ export const Products = () => {
   }, [])
 
   const renderBody = () => {
-    if (isLoading) return <p>Loading...</p>
+    // if (isLoading) return <p>Loading...</p>
+    if (apiResponse.message) return <p>{apiResponse.message}</p>
     if (!shoes) return <p>Your products is empty</p>
     if (!shoes.length) return <p>Your products is empty</p>
     return shoes.map((item: Product) => (

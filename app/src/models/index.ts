@@ -22,6 +22,11 @@ export type CartType = {
   items: Array<Cart>;
 };
 
+export type ResponseApi = {
+  success: boolean;
+  message?: string;
+};
+
 export type StoreType = {
   cart: CartType;
   products: Array<Product>;
@@ -39,6 +44,8 @@ export const storeDefault: StoreType = {
 export type DataContextType = {
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  apiResponse: ResponseApi;
+  setApiResponse: React.Dispatch<React.SetStateAction<ResponseApi>>;
   store: StoreType;
   setStore: React.Dispatch<React.SetStateAction<StoreType>>;
   productSelector: Product[];
