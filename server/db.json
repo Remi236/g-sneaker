@@ -82,16 +82,7 @@
     }
   ],
   "cart": {
-    "items": [
-      {
-        "id": 3,
-        "name": "Nike CruzrOne",
-        "color": "#E8D026",
-        "price": 100.97,
-        "image": "https://s3-us-west-2.amazonaws.com/s.cdpn.io/1315882/cruzrone-unisex-shoe-T2rRwS-removebg-preview.png",
-        "quantity": 2
-      }
-    ],
-    "total": 201.94
+    "items": [],
+    "total": 0
   }
 }

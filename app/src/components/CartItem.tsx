@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 import Trash from '/assets/trash.png'
 import { Cart, SelectorEnum } from '../models'
 import { DataContext } from '../contexts/dataContext'

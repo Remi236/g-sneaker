@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { Cart, Product, SelectorEnum } from '../models'
+import { Product, SelectorEnum } from '../models'
 import { DataContext } from '../contexts/dataContext'
 
 type ProductProps = {
